@@ -31,7 +31,8 @@ MDP is a very useful model in reinforcement learning and has helped researchers 
 
 To simplify the problem, we first look at a one-step MDP and add an extra agent to it, such as the game of “rock, paper, scissors”. In game theory terms, this is a two-player, three-action, one-shot, zero-sum game. This game can be fully represented by a game matrix as shown in Table 1 [5].
 
-In this one-shot game, the agent has to find an optimal strategy (probabilities of playing rock, paper or scissors) so it can maximize its immediate reward. Game theory offers various ways of solving this problem, which will be covered later. Now if we return to the context of a regular MDP, which contains many steps, each is represented by a one-shot game, the optimal strategy for each one-shot game now becomes the optimal policy at the current state π_s^*. This is made possible due to the Markovian property as the current one-shot game is not affected by previous steps. This is called a Markov game, a combination of an MDP and one-shot games. 
+In this one-shot game, the agent has to find an optimal strategy (probabilities of playing rock, paper or scissors) so it can maximize its immediate reward. Game theory offers various ways of solving this problem, which will be covered later. Now if we return to the context of a regular MDP, which contains many steps, each is represented by a one-shot game, the optimal strategy for each one-shot game now becomes the optimal policy at the current state π_s^*. This is made possible due to the Markovian property as the current one-shot game is not affected by previous steps. This is called a Markov game, a combination of an MDP and one-shot games.
+
 ![Table1&2](./Figures/Table1and2.png)
 
 ### Markov game algorithms
@@ -40,7 +41,7 @@ If we can compute the optimal strategy at each state π_s^* for a Markov game, w
 #### 1. Friend-or-foe Q-learning (FFQ)
 FFQ requires that the other player is identified as being either “friend” or “foe”. Foe-Q is used to solve zero-sum games and Friend-Q can be used to solve general sum games assuming both players are cooperative and are getting the same reward. FFQ always converges and in games with coordination or adversarial equilibria, FFQ converges to precisely the Nash-Q equilibrium [9].
 As an example, for the “rock, paper, scissors” game shown in Table I, Foe-Q assumes that the opponent gets the opposite rewards as the agent (which should be the case) and will always act to minimize the agent’s gain. The optimal strategy is then to maximize the reward when the opponent is trying to minimize it. This minimax algorithm is shown in Table 2 [5] as a series of inequality equations with the goal of maximizing V and can be solved by linear programming.
-For the same game, Friend-Q assumes that the opponent gets the same rewards as the agent (which is not the case) and will therefore collaborate with the agent. The optimal strategy is then to always choose the action with the best reward in the game matrix because the opponent would do the same under these assumptions. It is interesting to point out that even when the assumption is wrong here, the Friend-Q algorithm will nonetheless produce the correct strategy π(rock)=1⁄3,π(paper)=1⁄3,π(sissors)=1⁄3 as all three actions have the same max reward of 1.
+For the same game, Friend-Q assumes that the opponent gets the same rewards as the agent (which is not the case) and will therefore collaborate with the agent. The optimal strategy is then to always choose the action with the best reward in the game matrix because the opponent would do the same under these assumptions. It is interesting to point out that even when the assumption is wrong here, the Friend-Q algorithm will nonetheless produce the correct strategy π(rock)=1 ⁄ 3, π(paper)=1 ⁄ 3, π(sissors)=1 ⁄ 3 as all three actions have the same max reward of 1.
 #### 2. Correlated-Q
 The Correlated-Q (CE-Q) algorithm calculates correlated equilibria. A correlated equilibrium (CE) is a joint distribution over actions from which no agent is motivated to deviate unilaterally. It is more general than a Nash equilibrium in that it allows for dependencies among agents’ strategies [6]. It introduces a “referee”. At the beginning of each step, the referee will broadcast a policy to all players. If the policy is a CE, all players should follow the referee’s recommendation as deviating from it will not lead to additional reward gain for any player when all other player adhere to the recommendation. For the “rock, paper, scissors” game, a CE is an equal distribution of {(r,P),(r,S),(p,R),(p,S),(s,R),(s,P)}.
 
@@ -68,14 +69,19 @@ Given these three sets of inequalities, we can solve π_s(a) using linear progra
 The code of the soccer game environment, the agents and the environment-agent interface are available online with detailed comments. All agent algorithms are de-centralized and follow the design in [6] Table 2 given π_s(a), so learning and acting of the two agents in the soccer game are independent of each other. In this section, I focus only on how to calculate π_s(a) for different agents during learning according to the algorithm descriptions in the previous section. 
 There are five different agents implemented in this project, a random agent, a Q-learning agent, a Foe-Q learning agent, a Friend-Q learning agent and a uCE-Q learning agent. All agents are unified by the same interface implementing an act function and a learn function. Calculating π_s(a) for the random agent is trivial as it chooses each action with equal probability. The Q-learning agent chooses the action with the highest Q(s,a) deterministically disregarding the opponent’s action.
 
+#### 1. Friend-Q
 The Friend-Q agent uses the game matrix shown in Table 3. It calculates π_s(a) by doing max-max: first pick the max Q value from each column then pick the max among these max values and break tie randomly.
 
+![Table3&4](./Figures/Table3and4.png)
+
+#### 2. Foe-Q
 The Foe-Q agent uses the same game matrix as Friend-Q (Table 3) but calculates min-max instead. To do this, we introduce the value V (see also Table 1 and 2) as the minimal utility the opponent’s action can cause the agent to have given a policy π_s(a). Given this definition, we get five inequality equations:
 
 ![FoeQ inequity](./Figures/FoeQ_inequality.png)
 
 We then add Equation (4) as probability constraints and maximize V to achieve minimax.  π_s(a) is then solved using linear programming.
-![Table3&4](./Figures/Table3and4.png)
+
+#### 3. CE-Q
 The game matrix for CE-Q is different from FFQ (Table 4). It includes the opponent’s Q table and probabilities for each agent-opponent action pair because CE is a joint distribution over actions. As we discussed in the previous sections, according to the definition of CE, we have:
 
 ![CEQ inequity1](./Figures/CEQ_inequality1.png)
@@ -90,7 +96,9 @@ There are 5 actions, so a total 5x4=20 inequality equations for the agent and an
 
 ### Results and analysis
 The learning parameters are the same for all agents (Table 5). Agents are trained against opponents of the same type (e.g. Foe-Q vs Foe-Q). To evaluate the performance of trained agents, we let them compete against each other and also against an opponent that always act randomly (Table 6). Results are calculated from 10000 games.
+
 ![Table5and6](./Figures/Table5and6.png)
+
 All trained agents had above 50% win rates against the random opponent, showing that the training was successful. When compete against each other, we found that the win rate of CEQ = FoeQ = Q learning > FriendQ. It is interesting to note that Friend-Q interpreted the opponent’s move erroneously therefore performed poorly but still converge. Q learning performed well although it did not converge (see below).
 
 Having established that our game environment and the agents are working. Next I looked at the convergence for each algorithm in the soccer game. The result is shown in Figure 2. The y-scale is fixed at [0~0.01] to make figures comparable between each other. The result is very similar compared to Figure 3 in [1]. CE-Q and Foe-Q had very similar convergence pattern because in this two-player, zero-sum game they converge to the same equilibrium. Friend-Q converged very fast, the same as in the paper. Last but not least, Q-learning failed to converge. The reduction in error was only bounded by the reducing alpha value towards the end of the training. This is because it failed to consider its opponent’s action’s impact on the state and reward values and won't stabilize in such a non-stationary environment.
