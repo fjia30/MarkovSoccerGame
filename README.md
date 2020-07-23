@@ -20,9 +20,13 @@ Here I am going to implement different learning agents to solve a grid game call
 
 ### Markov games
 A Markov Decision Process (MDP) is defined by a set of states (S), actions (A), the transition function P(s,a,s’) and the reward function R(s,a,s’) [2]. The two functions reflect the Markovian property that it is memoryless. In an MDP, the agent acts alone to try to maximize the long-term discounted reward at each step. An MDP can be solved using Q-learning based on the Bellman equation [1].
+
 ![E1](./Figures/Equation1.png)
+
 Where V*(s') is the expected utility following the optimal policy π*. In the case of MDP:
+
 ![E2](./Figures/Equation2.png)
+
 MDP is a very useful model in reinforcement learning and has helped researchers in this filed to very impressive achievements such as Gerald Tesauro’s celebrated work on TD-Gammon, which enabled a program to learn and play the game of backgammon at the grandmaster level [3] and the program AlphaGo developed by a team at DeepMind to master the game of Go [4]. However, in the real world, no agent lives in a vacuum and it needs to interact with other agents, engaging in competitions and/or collaborations to maximize its own gain. To solve these problems, it is necessary to expand a single-agent MDP to include two or more agents.
 
 To simplify the problem, we first look at a one-step MDP and add an extra agent to it, such as the game of “rock, paper, scissors”. In game theory terms, this is a two-player, three-action, one-shot, zero-sum game. This game can be fully represented by a game matrix as shown in Table 1 [5].
@@ -41,9 +45,13 @@ For the same game, Friend-Q assumes that the opponent gets the same rewards as t
 The Correlated-Q (CE-Q) algorithm calculates correlated equilibria. A correlated equilibrium (CE) is a joint distribution over actions from which no agent is motivated to deviate unilaterally. It is more general than a Nash equilibrium in that it allows for dependencies among agents’ strategies [6]. It introduces a “referee”. At the beginning of each step, the referee will broadcast a policy to all players. If the policy is a CE, all players should follow the referee’s recommendation as deviating from it will not lead to additional reward gain for any player when all other player adhere to the recommendation. For the “rock, paper, scissors” game, a CE is an equal distribution of {(r,P),(r,S),(p,R),(p,S),(s,R),(s,P)}.
 
 A CE can sometimes perform better than a Nash for all players because it is able to eliminate unwanted action vectors (e.g. all players lose). And like FFQ, CE-Q is guaranteed to converge to stationary correlated equilibrium policies in zero-sum and common-interest Markov games [6]. To solve CE-Q, we need three sets of inequality equations. The first set defines the CE [6]. It means that switching for any player alone is not beneficial.
+
 ![E3](./Figures/Equation3.png)
+
 The second set defines the boundary of the probabilities.
+
 ![E4](./Figures/Equation4.png)
+
 The third defines the objective of the CE (or the referee), it can be one of the four
 - utilitarian, maximize the sum of all agents’ rewards
 - egalitarian, maximize the minimum of all agents’ rewards
@@ -51,7 +59,9 @@ The third defines the objective of the CE (or the referee), it can be one of the
 - dictatorial, maximize the maximum of any individual agent’s rewards.
 
 Here we only used utilitarian, and we refer to this algorithm as uCE-Q.
+
 ![E5](./Figures/Equation5.png)
+
 Given these three sets of inequalities, we can solve π_s(a) using linear programming.
 
 ### Implementation
@@ -61,14 +71,21 @@ There are five different agents implemented in this project, a random agent, a Q
 The Friend-Q agent uses the game matrix shown in Table 3. It calculates π_s(a) by doing max-max: first pick the max Q value from each column then pick the max among these max values and break tie randomly.
 
 The Foe-Q agent uses the same game matrix as Friend-Q (Table 3) but calculates min-max instead. To do this, we introduce the value V (see also Table 1 and 2) as the minimal utility the opponent’s action can cause the agent to have given a policy π_s(a). Given this definition, we get five inequality equations:
+
 ![FoeQ inequity](./Figures/FoeQ_inequality.png)
+
 We then add Equation (4) as probability constraints and maximize V to achieve minimax.  π_s(a) is then solved using linear programming.
 ![Table3&4](./Figures/Table3and4.png)
 The game matrix for CE-Q is different from FFQ (Table 4). It includes the opponent’s Q table and probabilities for each agent-opponent action pair because CE is a joint distribution over actions. As we discussed in the previous sections, according to the definition of CE, we have:
+
 ![CEQ inequity1](./Figures/CEQ_inequality1.png)
+
 These are a set of 4 equations stating that when instructed to choose N the agent has no gain to switch to 4 alternative actions. The same logic applies to the opponent:
+
 ![CEQ inequity2](./Figures/CEQ_inequality2.png)
+
 There are 5 actions, so a total 5x4=20 inequality equations for the agent and another 20 for the opponent. Additionally, we have Equation (4) as probability constraints and we aim to achieve Equation (5). π_s(a_agent,a_opponent) is then solved using linear programming and
+
 ![CEQ pie](./Figures/CEQ_pie.png)
 
 ### Results and analysis
