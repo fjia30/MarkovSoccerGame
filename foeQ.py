@@ -1,7 +1,7 @@
 from agents import *
 
 # FoeQ / minimaxQ is implemented according to Littman 1994
-class FoeQ(SoccerGameAgent):
+class FoeQ(ISoccerGameAgent):
     def __init__(self, env, gamma):
         super().__init__(env, gamma)
         stateSpace = env.state_space

@@ -1,6 +1,6 @@
 from agents import *
 
-class randomPlayAgent(SoccerGameAgent):
+class randomPlayAgent(ISoccerGameAgent):
     def __init__(self, env, gamma):
         super().__init__(env, gamma)
         stateSpace = env.state_space

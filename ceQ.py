@@ -2,7 +2,7 @@ from agents import *
 
 # CEQ see Greenwald, Hall, and Zinkevich 2005
 # this algorithm is similar to FoeQ but different in calculating pi
-class CEQ(SoccerGameAgent):
+class CEQ(ISoccerGameAgent):
     def __init__(self, env, gamma):
         super().__init__(env, gamma)
         stateSpace = env.state_space

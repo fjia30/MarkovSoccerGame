@@ -3,7 +3,7 @@ from agents import *
 # based on littman FFQ paper
 # compared to FoeQ, we dont need to store pi and V because we can get both easily from the game matrix
 # V is the max value from the matrix and pi chooses the action having that value
-class FriendQ(SoccerGameAgent):
+class FriendQ(ISoccerGameAgent):
     def __init__(self, env, gamma):
         super().__init__(env, gamma)
         stateSpace = env.state_space

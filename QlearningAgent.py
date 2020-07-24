@@ -1,6 +1,6 @@
 from agents import *
 
-class QLearning(SoccerGameAgent):
+class QLearning(ISoccerGameAgent):
     def __init__(self, env: SoccerEnviroment, gamma):
         self.env = env
         self.gamma = gamma
