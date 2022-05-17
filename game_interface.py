@@ -13,7 +13,7 @@ class SoccerGame:
 
     def __init__(
         self,
-        numEpisode,
+        num_episode,
         alpha_start,
         alpha_decay,
         alpha_min,
@@ -24,7 +24,7 @@ class SoccerGame:
         env,
         agent,
         opponent,
-        maxStep=500,
+        max_step=500,
     ):
         self.alpha_start = alpha_start
         self.alpha_decay = alpha_decay
@@ -32,16 +32,16 @@ class SoccerGame:
         self.epsilon_start = epsilon_start
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
-        self.numEpisode = numEpisode
+        self.numEpisode = num_episode
         self.gamma = gamma
         self.env = env
         self.agent = agent
         self.opponent = opponent
-        self.maxStep = maxStep
+        self.maxStep = max_step
 
     # Sample a fixed point in agent's Q function space
     # By default, the start position.
-    def __sampleAgentQValue(self, s0=2, s1=1, s2=0, a=1, o=4):
+    def _sample_agent_q_value(self, s0=2, s1=1, s2=0, a=1, o=4):
         # Special case for Q-learning
         if len(self.agent.Q.shape) < 5:
             return self.agent.Q[s0, s1, s2, a]
@@ -50,7 +50,7 @@ class SoccerGame:
     def train(self):
         count = 0
         error = []
-        current_val = self.__sampleAgentQValue()
+        current_val = self._sample_agent_q_value()
         alpha = self.alpha_start
 
         # epsilon defines a unified exploration rate during training for both
@@ -78,14 +78,14 @@ class SoccerGame:
             step = 0
             while True:
                 if np.random.random() < epsilon:
-                    agentAct = np.random.randint(self.env.action_space)
+                    agent_action = np.random.randint(self.env.action_space)
                 else:
-                    agentAct = self.agent.act(s[0], s[1], s[2])
+                    agent_action = self.agent.act(s[0], s[1], s[2])
                 if np.random.random() < epsilon:
-                    opponentAct = np.random.randint(self.env.action_space)
+                    opponent_action = np.random.randint(self.env.action_space)
                 else:
-                    opponentAct = self.opponent.act(s[0], s[1], s[2])
-                if (s[0], s[1], s[2], agentAct, opponentAct) == (
+                    opponent_action = self.opponent.act(s[0], s[1], s[2])
+                if (s[0], s[1], s[2], agent_action, opponent_action) == (
                     2,
                     1,
                     False,
@@ -93,14 +93,16 @@ class SoccerGame:
                     4,
                 ):
                     count += 1
-                s_prime, reward, done = self.env.step(agentAct, opponentAct)
+                s_prime, reward, done = self.env.step(
+                    agent_action, opponent_action
+                )
                 self.agent.learn(
                     alpha,
                     s[0],
                     s[1],
                     s[2],
-                    agentAct,
-                    opponentAct,
+                    agent_action,
+                    opponent_action,
                     s_prime[0],
                     s_prime[1],
                     s_prime[2],
@@ -113,8 +115,8 @@ class SoccerGame:
                     s[0],
                     s[1],
                     s[2],
-                    opponentAct,
-                    agentAct,
+                    opponent_action,
+                    agent_action,
                     s_prime[0],
                     s_prime[1],
                     s_prime[2],
@@ -131,7 +133,7 @@ class SoccerGame:
                 alpha *= self.alpha_decay
             if epsilon > self.epsilon_min:
                 epsilon *= self.epsilon_decay
-            new_val = self.__sampleAgentQValue()
+            new_val = self._sample_agent_q_value()
             error.append(abs(new_val - current_val))
             current_val = new_val
         print(count)
@@ -143,11 +145,13 @@ class SoccerGame:
         if render:
             self.env.render()
         while True:
-            agentAct = self.agent.act(s[0], s[1], s[2])
-            opponentAct = self.opponent.act(s[0], s[1], s[2])
-            s_prime, reward, done = self.env.step(agentAct, opponentAct)
+            agent_action = self.agent.act(s[0], s[1], s[2])
+            opponent_action = self.opponent.act(s[0], s[1], s[2])
+            s_prime, reward, done = self.env.step(
+                agent_action, opponent_action
+            )
             if render:
-                print("\n", agentAct, opponentAct)
+                print("\n", agent_action, opponent_action)
                 self.env.render()
             if done or step > self.maxStep:
                 break

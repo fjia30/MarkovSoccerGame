@@ -1,10 +1,10 @@
-from agents import ISoccerGameAgent
+from agents import SoccerGameAgent
 import numpy as np
 from cvxopt import solvers, matrix
 import copy
 
 
-class FoeQ(ISoccerGameAgent):
+class FoeQ(SoccerGameAgent):
     """The FoeQ (aka minimax Q-learning) agent.
 
     Reference:
@@ -16,24 +16,29 @@ class FoeQ(ISoccerGameAgent):
 
     def __init__(self, env, gamma):
         super().__init__(env, gamma)
-        stateSpace = env.state_space
-        actSpace = env.action_space
-        dimOfQ = np.concatenate((stateSpace, [actSpace, actSpace]))
-        dimOfPi = np.concatenate((stateSpace, [actSpace]))
-        self.Q = np.ones(dimOfQ)
-        self.V = np.ones(stateSpace)
-        self.pi = np.ones(dimOfPi) / actSpace
+
+        state_space = env.state_space
+        action_space = env.action_space
+
+        q_dim = np.concatenate((state_space, [action_space, action_space]))
+        pi_dim = np.concatenate((state_space, [action_space]))
+
+        self.Q = np.ones(q_dim)
+        self.V = np.ones(state_space)
+        self.pi = np.ones(pi_dim) / action_space
+
         solvers.options["show_progress"] = False
 
     def act(self, s0, s1, s2):
         s2 = int(s2)
-        actProb = self.pi[s0, s1, s2, :]
+        action_probability = self.pi[s0, s1, s2, :]
         rand = np.random.random()
         prob = 0
-        for i in range(len(actProb)):
-            prob += actProb[i]
+        for i in range(len(action_probability)):
+            prob += action_probability[i]
             if rand < prob:
                 return i
+        # TODO: i is the loop variable, so this logic can be dangerous
         return i
 
     # See Greenwald, Hall, and Zinkevich, 2005, table 2
@@ -44,7 +49,7 @@ class FoeQ(ISoccerGameAgent):
         s1,
         s2,
         action,
-        opponentAction,
+        opponent_action,
         s_prime0,
         s_prime1,
         s_prime2,
@@ -92,39 +97,39 @@ class FoeQ(ISoccerGameAgent):
         # Q table.
 
         # First form game matrix
-        gameMatrix = copy.copy(self.Q[s0, s1, s2].T)
+        game_matrix = copy.copy(self.Q[s0, s1, s2].T)
 
         # Add constrains.
         #
         # All probabilities >= 0.
-        numActions = self.env.action_space
-        I = np.zeros((numActions, numActions))
-        for i in range(numActions):
+        num_actions = self.env.action_space
+        I = np.zeros((num_actions, num_actions))
+        for i in range(num_actions):
             I[i, i] = 1
 
-        gameMatrix = np.vstack((gameMatrix, I))
+        game_matrix = np.vstack((game_matrix, I))
 
         # Add V to the matrix.
-        gameMatrix = np.hstack(
+        game_matrix = np.hstack(
             (
-                gameMatrix,
+                game_matrix,
                 [[-1], [-1], [-1], [-1], [-1], [0], [0], [0], [0], [0]],
             )
         )
 
         # Add constraints that all probabilities sum to 1.
-        gameMatrix = np.vstack(
-            (gameMatrix, [1, 1, 1, 1, 1, 0], [-1, -1, -1, -1, -1, 0])
+        game_matrix = np.vstack(
+            (game_matrix, [1, 1, 1, 1, 1, 0], [-1, -1, -1, -1, -1, 0])
         )
 
-        gameMatrix = matrix(gameMatrix)
+        game_matrix = matrix(game_matrix)
         b = matrix(
             [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, -1.0]
         )
         c = matrix([0.0, 0.0, 0.0, 0.0, 0.0, 1.0])
 
         # Use negative sign to convert max to min.
-        sol = solvers.lp(-c, -gameMatrix, -b)
+        sol = solvers.lp(-c, -game_matrix, -b)
 
         result = np.array(sol["x"])
 
@@ -142,13 +147,13 @@ class FoeQ(ISoccerGameAgent):
         # Q[s, a, o] = (1 - alpha) * Q[s, a, o] + alpha *
         # ((1 - gamma) * rew + gamma * V[s'])
         if not done:
-            self.Q[s0, s1, s2, action, opponentAction] = (1 - alpha) * self.Q[
-                s0, s1, s2, action, opponentAction
+            self.Q[s0, s1, s2, action, opponent_action] = (1 - alpha) * self.Q[
+                s0, s1, s2, action, opponent_action
             ] + alpha * (
                 (1 - self.gamma) * reward
                 + self.gamma * self.V[s_prime0, s_prime1, s_prime2]
             )
         else:
-            self.Q[s0, s1, s2, action, opponentAction] = (1 - alpha) * self.Q[
-                s0, s1, s2, action, opponentAction
+            self.Q[s0, s1, s2, action, opponent_action] = (1 - alpha) * self.Q[
+                s0, s1, s2, action, opponent_action
             ] + alpha * (1 - self.gamma) * reward

@@ -1,11 +1,11 @@
-from soccer import SoccerEnviroment
+from soccer import SoccerEnvironment
 from abc import ABC, abstractmethod
 
 
-class ISoccerGameAgent(ABC):
+class SoccerGameAgent(ABC):
     """Abstract class to represent agents."""
 
-    def __init__(self, env: SoccerEnviroment, gamma):
+    def __init__(self, env: SoccerEnvironment, gamma):
         self.env = env
         self.gamma = gamma
 
@@ -21,7 +21,7 @@ class ISoccerGameAgent(ABC):
         s1,
         s2,
         action,
-        opponentAction,
+        opponent_action,
         s_prime0,
         s_prime1,
         s_prime2,

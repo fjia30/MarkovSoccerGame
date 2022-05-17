@@ -1,5 +1,5 @@
-from soccer import SoccerEnviroment
-from randomAgent import randomPlayAgent
+from soccer import SoccerEnvironment
+from randomAgent import RandomAgent
 from QlearningAgent import QLearning
 from foeQ import FoeQ
 from friendQ import FriendQ
@@ -7,7 +7,7 @@ from ceQ import CEQ
 from matplotlib import pyplot as plt
 from game_interface import SoccerGame
 
-numEpisode = 100000
+num_episode = 100000
 epsilon_start = 1
 epsilon_decay = 0.99993
 epsilon_min = 0.01
@@ -15,12 +15,12 @@ gamma = 0.99
 alpha_start = 1
 alpha_decay = 0.99993
 alpha_min = 0.001
-env = SoccerEnviroment()
+env = SoccerEnvironment()
 
-QLearnAgent = QLearning(env, gamma)
-QLearnOpponent = QLearning(env, gamma)
+q_learning_agent = QLearning(env, gamma)
+q_learning_opponent = QLearning(env, gamma)
 game1 = SoccerGame(
-    numEpisode,
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -29,20 +29,20 @@ game1 = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    QLearnAgent,
-    QLearnOpponent,
+    q_learning_agent,
+    q_learning_opponent,
 )
-QLearnErr = game1.train()
-plt.plot(QLearnErr, linewidth=0.5)
+q_learning_error = game1.train()
+plt.plot(q_learning_error, linewidth=0.5)
 plt.show()
 
-plt.plot(QLearnErr, linewidth=0.5)
+plt.plot(q_learning_error, linewidth=0.5)
 plt.ylim(0, 0.01)
 
-FoeQAgent = FoeQ(env, gamma)
-FoeQOpponent = FoeQ(env, gamma)
+foe_q_agent = FoeQ(env, gamma)
+foe_q_opponent = FoeQ(env, gamma)
 game2 = SoccerGame(
-    numEpisode,
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -51,20 +51,20 @@ game2 = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    FoeQAgent,
-    FoeQOpponent,
+    foe_q_agent,
+    foe_q_opponent,
 )
-FoeQErr = game2.train()
-plt.plot(FoeQErr, linewidth=0.5)
+foe_q_error = game2.train()
+plt.plot(foe_q_error, linewidth=0.5)
 plt.show()
 
-plt.plot(FoeQErr, linewidth=0.5)
+plt.plot(foe_q_error, linewidth=0.5)
 plt.ylim(0, 0.01)
 
-FriendQAgent = FriendQ(env, gamma)
-FriendQOpponent = FriendQ(env, gamma)
+friend_q_agent = FriendQ(env, gamma)
+friend_q_opponent = FriendQ(env, gamma)
 game3 = SoccerGame(
-    numEpisode,
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -73,20 +73,20 @@ game3 = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    FriendQAgent,
-    FriendQOpponent,
+    friend_q_agent,
+    friend_q_opponent,
 )
-FriendQErr = game3.train()
-plt.plot(FriendQErr, linewidth=0.5)
+friend_q_error = game3.train()
+plt.plot(friend_q_error, linewidth=0.5)
 plt.show()
 
-plt.plot(FriendQErr, linewidth=0.5)
+plt.plot(friend_q_error, linewidth=0.5)
 plt.ylim(0, 0.01)
 
-CEQAgent = CEQ(env, gamma)
-CEQOpponent = CEQ(env, gamma)
+ceq_agent = CEQ(env, gamma)
+ceq_opponent = CEQ(env, gamma)
 game4 = SoccerGame(
-    numEpisode,
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -95,18 +95,18 @@ game4 = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    CEQAgent,
-    CEQOpponent,
+    ceq_agent,
+    ceq_opponent,
 )
-CEQErr = game4.train()
-plt.plot(CEQErr, linewidth=0.5)
+ceq_error = game4.train()
+plt.plot(ceq_error, linewidth=0.5)
 plt.show()
 
-plt.plot(CEQErr, linewidth=0.5)
+plt.plot(ceq_error, linewidth=0.5)
 plt.ylim(0, 0.01)
 
-CEQvsFoe = SoccerGame(
-    numEpisode,
+ceq_vs_foe = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -115,13 +115,13 @@ CEQvsFoe = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    CEQAgent,
-    FoeQOpponent,
+    ceq_agent,
+    foe_q_opponent,
 )
-print(CEQvsFoe.evaluate())
+print(ceq_vs_foe.evaluate())
 
-CEQvsFriend = SoccerGame(
-    numEpisode,
+ceq_vs_friend = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -130,13 +130,13 @@ CEQvsFriend = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    CEQAgent,
-    FriendQOpponent,
+    ceq_agent,
+    friend_q_opponent,
 )
-print(CEQvsFriend.evaluate())
+print(ceq_vs_friend.evaluate())
 
-FoevsFriend = SoccerGame(
-    numEpisode,
+foe_vs_friend = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -145,13 +145,13 @@ FoevsFriend = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    FoeQAgent,
-    FriendQOpponent,
+    foe_q_agent,
+    friend_q_opponent,
 )
-print(FoevsFriend.evaluate())
+print(foe_vs_friend.evaluate())
 
-FriendvsFoe = SoccerGame(
-    numEpisode,
+friend_vs_foe = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -160,13 +160,13 @@ FriendvsFoe = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    FriendQAgent,
-    FoeQOpponent,
+    friend_q_agent,
+    foe_q_opponent,
 )
-print(FriendvsFoe.evaluate())
+print(friend_vs_foe.evaluate())
 
-CEQvsQLearn = SoccerGame(
-    numEpisode,
+ceq_vs_q_learning = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -175,13 +175,13 @@ CEQvsQLearn = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    CEQAgent,
-    QLearnOpponent,
+    ceq_agent,
+    q_learning_opponent,
 )
-print(CEQvsQLearn.evaluate())
+print(ceq_vs_q_learning.evaluate())
 
-FoeQvsQLearn = SoccerGame(
-    numEpisode,
+foe_q_vs_q_learning = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -190,13 +190,13 @@ FoeQvsQLearn = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    FoeQAgent,
-    QLearnOpponent,
+    foe_q_agent,
+    q_learning_opponent,
 )
-print(FoeQvsQLearn.evaluate())
+print(foe_q_vs_q_learning.evaluate())
 
-FriendQvsQLearn = SoccerGame(
-    numEpisode,
+friend_q_vs_q_learning = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -205,14 +205,14 @@ FriendQvsQLearn = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    FriendQAgent,
-    QLearnOpponent,
+    friend_q_agent,
+    q_learning_opponent,
 )
-print(FriendQvsQLearn.evaluate())
+print(friend_q_vs_q_learning.evaluate())
 
-randomAgent = randomPlayAgent(env, gamma)
-CEQvsRandom = SoccerGame(
-    numEpisode,
+random_agent = RandomAgent(env, gamma)
+ceq_vs_random = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -221,12 +221,12 @@ CEQvsRandom = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    CEQAgent,
-    randomAgent,
+    ceq_agent,
+    random_agent,
 )
-print("CEQ vs Random: ", CEQvsRandom.evaluate())
-FoeQvsRandom = SoccerGame(
-    numEpisode,
+print("CEQ vs Random: ", ceq_vs_random.evaluate())
+foe_q_vs_random = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -235,12 +235,12 @@ FoeQvsRandom = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    FoeQAgent,
-    randomAgent,
+    foe_q_agent,
+    random_agent,
 )
-print("FoeQ vs Random: ", FoeQvsRandom.evaluate())
-FriendQvsRandom = SoccerGame(
-    numEpisode,
+print("FoeQ vs Random: ", foe_q_vs_random.evaluate())
+friend_q_vs_random = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -249,12 +249,12 @@ FriendQvsRandom = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    FriendQAgent,
-    randomAgent,
+    friend_q_agent,
+    random_agent,
 )
-print("FriendQ vs Random: ", FriendQvsRandom.evaluate())
-QLearnvsRandom = SoccerGame(
-    numEpisode,
+print("FriendQ vs Random: ", friend_q_vs_random.evaluate())
+q_learning_vs_random = SoccerGame(
+    num_episode,
     alpha_start,
     alpha_decay,
     alpha_min,
@@ -263,7 +263,7 @@ QLearnvsRandom = SoccerGame(
     epsilon_min,
     gamma,
     env,
-    QLearnAgent,
-    randomAgent,
+    q_learning_agent,
+    random_agent,
 )
-print("QLearn vs Random: ", QLearnvsRandom.evaluate())
+print("QLearn vs Random: ", q_learning_vs_random.evaluate())

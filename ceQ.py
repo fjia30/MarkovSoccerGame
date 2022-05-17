@@ -1,9 +1,9 @@
-from agents import ISoccerGameAgent
+from agents import SoccerGameAgent
 from cvxopt import solvers, matrix
 import numpy as np
 
 
-class CEQ(ISoccerGameAgent):
+class CEQ(SoccerGameAgent):
     """The Correlated Q-Learning agent.
 
     This agent is similar to FoeQ, but differs in the calculation of pi.
@@ -15,31 +15,36 @@ class CEQ(ISoccerGameAgent):
 
     def __init__(self, env, gamma):
         super().__init__(env, gamma)
-        stateSpace = env.state_space
-        actSpace = env.action_space
-        dimOfQ = np.concatenate((stateSpace, [actSpace, actSpace]))
-        self.Q = np.ones(dimOfQ)
-        self.V = np.ones(stateSpace)
+
+        state_space = env.state_space
+        action_space = env.action_space
+
+        # TODO: this seems to create a useless array.
+        q_dim = np.concatenate((state_space, [action_space, action_space]))
+
+        self.Q = np.ones(q_dim)
+        self.V = np.ones(state_space)
 
         # This is different from FoeQ.
-        # calculate probability for each agent-opponent action pair.
-        self.pi = np.ones(dimOfQ) / (actSpace**2)
+        # Calculate the probability for each agent-opponent action pair.
+        self.pi = np.ones(q_dim) / (action_space**2)
 
         # This is also different from FoeQ because CEQ is a joint distribution,
         # we need to simulate the opponent's utilities too.
-        self.opponentQ = np.ones(dimOfQ)
-        self.opponentV = np.ones(stateSpace)
+        self.opponentQ = np.ones(q_dim)
+        self.opponentV = np.ones(state_space)
         solvers.options["show_progress"] = False
 
     def act(self, s0, s1, s2):
         s2 = int(s2)
-        actProb = np.sum(self.pi[s0, s1, s2, :], axis=1)
+        action_probability = np.sum(self.pi[s0, s1, s2, :], axis=1)
         rand = np.random.random()
         prob = 0
-        for i in range(len(actProb)):
-            prob += actProb[i]
+        for i in range(len(action_probability)):
+            prob += action_probability[i]
             if rand < prob:
                 return i
+        # TODO: i is the loop variable, so this logic can be dangerous
         return i
 
     # See Greenwald, Hall, and Zinkevich, 2005, table 2.
@@ -50,7 +55,7 @@ class CEQ(ISoccerGameAgent):
         s1,
         s2,
         action,
-        opponentAction,
+        opponent_action,
         s_prime0,
         s_prime1,
         s_prime2,
@@ -146,22 +151,22 @@ class CEQ(ISoccerGameAgent):
         # Construct linear functions
         #
         # Set 1
-        numActions = self.env.action_space
-        numComActions = numActions**2  # Number of combined actions.
+        num_actions = self.env.action_space
+        num_combined_actions = num_actions**2  # Number of combined actions.
         A = []
         b = []
 
         # First do A
-        for i in range(numActions):
-            for j in range(numActions):
+        for i in range(num_actions):
+            for j in range(num_actions):
                 if i == j:
                     continue
-                equation = [0] * (numComActions)
-                for k in range(numActions):
+                equation = [0] * num_combined_actions
+                for k in range(num_actions):
                     # Given action i, no need for A to change to action j.
                     # For all k, sum(pi(s, i, k)[Q(s, i, k) - Q(s, j, k)]) >= 0
                     # Locate the column position in the LP matrix A.
-                    index = numActions * i + k
+                    index = num_actions * i + k
                     equation[index] = (
                         self.Q[s0, s1, s2, i, k] - self.Q[s0, s1, s2, j, k]
                     )
@@ -169,17 +174,17 @@ class CEQ(ISoccerGameAgent):
                 b.append(0)
 
         # Next do B
-        for i in range(numActions):
-            for j in range(numActions):
+        for i in range(num_actions):
+            for j in range(num_actions):
                 if i == j:
                     continue
-                equation = [0] * (numComActions)
-                for k in range(numActions):
+                equation = [0] * num_combined_actions
+                for k in range(num_actions):
                     # Given action i, no need for B to change to action j.
                     # For all k,
                     # sum(pi(s, k, i)[Qo(s, k, i) - Qo(s, k, j)]) >= 0
                     # Locate the column position in the LP matrix A.
-                    index = numActions * k + i
+                    index = num_actions * k + i
                     equation[index] = (
                         self.opponentQ[s0, s1, s2, k, i]
                         - self.opponentQ[s0, s1, s2, k, j]
@@ -190,16 +195,20 @@ class CEQ(ISoccerGameAgent):
         # Set 2
         A = np.array(A, dtype=float)
         b = np.array(b, dtype=float)
-        I = np.zeros((numComActions, numComActions))
-        for i in range(numComActions):
+
+        I = np.zeros((num_combined_actions, num_combined_actions))
+        for i in range(num_combined_actions):
             I[i, i] = 1
-        A = np.vstack((A, I, [1] * numComActions, [-1] * numComActions))
-        b = np.concatenate((b, [0] * numComActions, [1, -1]))
+
+        A = np.vstack(
+            (A, I, [1] * num_combined_actions, [-1] * num_combined_actions)
+        )
+        b = np.concatenate((b, [0] * num_combined_actions, [1, -1]))
 
         # Set 3
         c = []
-        for i in range(numActions):
-            for j in range(numActions):
+        for i in range(num_actions):
+            for j in range(num_actions):
                 c.append(
                     self.Q[s0, s1, s2, i, j] + self.opponentQ[s0, s1, s2, i, j]
                 )
@@ -210,14 +219,14 @@ class CEQ(ISoccerGameAgent):
         c = matrix(c)
         sol = solvers.lp(-c, -A, -b)
         result = np.array(sol["x"])
-        result = np.reshape(result, (numActions, numActions))
+        result = np.reshape(result, (num_actions, num_actions))
 
         # Update pi.
         self.pi[s0, s1, s2] = result
 
         # Step 4a: update V for both agent and opponent
         # Note that only V is updated, but not V', because Q' and pi' are not
-        # changed and we are saving all V values.
+        # changed, and we are saving all V values.
         self.V[s0, s1, s2] = np.sum(self.pi[s0, s1, s2] * self.Q[s0, s1, s2])
 
         self.opponentV[s0, s1, s2] = np.sum(
@@ -228,24 +237,24 @@ class CEQ(ISoccerGameAgent):
         # Q[s, a, o] = (1 - alpha) * Q[s, a, o] + alpha *
         # ((1 - gamma) * rew + gamma * V[s'])
         if not done:
-            self.Q[s0, s1, s2, action, opponentAction] = (1 - alpha) * self.Q[
-                s0, s1, s2, action, opponentAction
+            self.Q[s0, s1, s2, action, opponent_action] = (1 - alpha) * self.Q[
+                s0, s1, s2, action, opponent_action
             ] + alpha * (
                 (1 - self.gamma) * reward
                 + self.gamma * self.V[s_prime0, s_prime1, s_prime2]
             )
-            self.opponentQ[s0, s1, s2, action, opponentAction] = (
+            self.opponentQ[s0, s1, s2, action, opponent_action] = (
                 1 - alpha
-            ) * self.opponentQ[s0, s1, s2, action, opponentAction] + alpha * (
+            ) * self.opponentQ[s0, s1, s2, action, opponent_action] + alpha * (
                 (1 - self.gamma) * opponent_reward
                 + self.gamma * self.opponentV[s_prime0, s_prime1, s_prime2]
             )
         else:
-            self.Q[s0, s1, s2, action, opponentAction] = (1 - alpha) * self.Q[
-                s0, s1, s2, action, opponentAction
+            self.Q[s0, s1, s2, action, opponent_action] = (1 - alpha) * self.Q[
+                s0, s1, s2, action, opponent_action
             ] + alpha * (1 - self.gamma) * reward
-            self.opponentQ[s0, s1, s2, action, opponentAction] = (
+            self.opponentQ[s0, s1, s2, action, opponent_action] = (
                 1 - alpha
-            ) * self.opponentQ[s0, s1, s2, action, opponentAction] + alpha * (
+            ) * self.opponentQ[s0, s1, s2, action, opponent_action] + alpha * (
                 1 - self.gamma
             ) * opponent_reward
