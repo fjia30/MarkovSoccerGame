@@ -1,6 +1,7 @@
 from agents import ISoccerGameAgent
 import numpy as np
 
+
 class randomPlayAgent(ISoccerGameAgent):
     def __init__(self, env, gamma):
         super().__init__(env, gamma)
@@ -12,5 +13,19 @@ class randomPlayAgent(ISoccerGameAgent):
     def act(self, s0, s1, s2):
         return np.random.randint(self.env.action_space)
 
-    def learn(self, alpha, s0, s1, s2, action, opponentAction, s_prime0, s_prime1, s_prime2, reward, opponent_reward,done):
+    def learn(
+        self,
+        alpha,
+        s0,
+        s1,
+        s2,
+        action,
+        opponentAction,
+        s_prime0,
+        s_prime1,
+        s_prime2,
+        reward,
+        opponent_reward,
+        done,
+    ):
         pass

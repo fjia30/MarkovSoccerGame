@@ -12,10 +12,11 @@
 # states are position of A, position of B and whether A or B has the ball
 # actions for both A and B are (N,S,E,W,stick) which is represented as 0~4
 import numpy as np
+
 GOAL_REWARD = 100
 
-class SoccerEnviroment:
 
+class SoccerEnviroment:
     def __init__(self):
         self.actions = [-4, 4, 1, -1, 0]
         self.action_space = len(self.actions)
@@ -65,7 +66,7 @@ class SoccerEnviroment:
 
     # initilized game with random ball poccession
     def reset(self):
-        self.posOfA, self.posOfB = np.random.choice([1,2,5,6], size=2, replace=False)
+        self.posOfA, self.posOfB = np.random.choice([1, 2, 5, 6], size=2, replace=False)
         self.AHasBall = np.random.choice([True, False])
         return self.__showCurrentState()
 
@@ -103,4 +104,3 @@ class SoccerEnviroment:
                     out += "|    "
             out += "|\n---------------------\n"
         print(out)
-    

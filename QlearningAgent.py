@@ -2,6 +2,7 @@ import numpy as np
 from agents import ISoccerGameAgent
 from soccer import SoccerEnviroment
 
+
 class QLearning(ISoccerGameAgent):
     def __init__(self, env: SoccerEnviroment, gamma):
         self.env = env
@@ -18,7 +19,21 @@ class QLearning(ISoccerGameAgent):
         action = np.random.choice(np.flatnonzero(Qvalues == Qvalues.max()))
         return action
 
-    def learn(self, alpha, s0, s1, s2, action, opponentAction, s_prime0, s_prime1, s_prime2, reward, opponent_reward,done):
+    def learn(
+        self,
+        alpha,
+        s0,
+        s1,
+        s2,
+        action,
+        opponentAction,
+        s_prime0,
+        s_prime1,
+        s_prime2,
+        reward,
+        opponent_reward,
+        done,
+    ):
         s2 = int(s2)
         s_prime2 = int(s_prime2)
         # step 4a. calculate V_prime for end state, next state value is 0
@@ -30,7 +45,7 @@ class QLearning(ISoccerGameAgent):
         # step 4b. update Q, which is the same as in FoeQ
         # Q[s,a] = (1-alpha) * Q[s,a] + alpha * ((1-gamma)*rew + gamma * V[s’])
         # simple Q learning does not consider opponent's actions
-        self.Q[s0, s1, s2, action] = \
-            (1 - alpha) * self.Q[s0, s1, s2, action] + \
-            alpha * ((1-self.gamma) * reward + self.gamma * V_prime)
+        self.Q[s0, s1, s2, action] = (1 - alpha) * self.Q[
+            s0, s1, s2, action
+        ] + alpha * ((1 - self.gamma) * reward + self.gamma * V_prime)
         pass

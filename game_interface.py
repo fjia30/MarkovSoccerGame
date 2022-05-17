@@ -9,7 +9,21 @@ import numpy as np
 # and they learn and behave independent of each other
 # the learning parameters are provided and are the same for both players
 class SoccerGame:
-    def __init__(self, numEpisode, alpha_start, alpha_decay, alpha_min, epsilon_start, epsilon_decay, epsilon_min, gamma, env, agent, opponent, maxStep=500):
+    def __init__(
+        self,
+        numEpisode,
+        alpha_start,
+        alpha_decay,
+        alpha_min,
+        epsilon_start,
+        epsilon_decay,
+        epsilon_min,
+        gamma,
+        env,
+        agent,
+        opponent,
+        maxStep=500,
+    ):
         self.alpha_start = alpha_start
         self.alpha_decay = alpha_decay
         self.alpha_min = alpha_min
@@ -27,9 +41,9 @@ class SoccerGame:
     # by default the start position
     def __sampleAgentQValue(self, s0=2, s1=1, s2=0, a=1, o=4):
         # special case for Q learning
-        if len(self.agent.Q.shape)<5:
-            return self.agent.Q[s0,s1,s2,a]
-        return self.agent.Q[s0,s1,s2,a,o]
+        if len(self.agent.Q.shape) < 5:
+            return self.agent.Q[s0, s1, s2, a]
+        return self.agent.Q[s0, s1, s2, a, o]
 
     # epsilon defines a unified exploration rate during training for both players
     def train(self):
@@ -41,35 +55,63 @@ class SoccerGame:
         memory = deque(maxlen=100)
         for episode in range(self.numEpisode):
             n = 1000
-            if episode % n == n-1:
-                print("episode: {} / {}, win rate={:.2f}, alpha={:.4f}, epsilon={:4f}".format(episode,
-                    self.numEpisode, np.average(memory), alpha, epsilon))
+            if episode % n == n - 1:
+                print(
+                    "episode: {} / {}, win rate={:.2f}, alpha={:.4f}, epsilon={:4f}".format(
+                        episode, self.numEpisode, np.average(memory), alpha, epsilon
+                    )
+                )
             s = self.env.reset()
             step = 0
             while True:
-                if np.random.random()<epsilon:
+                if np.random.random() < epsilon:
                     agentAct = np.random.randint(self.env.action_space)
                 else:
                     agentAct = self.agent.act(s[0], s[1], s[2])
-                if np.random.random()<epsilon:
+                if np.random.random() < epsilon:
                     opponentAct = np.random.randint(self.env.action_space)
                 else:
                     opponentAct = self.opponent.act(s[0], s[1], s[2])
-                if (s[0],s[1],s[2],agentAct,opponentAct)==(2,1,False,1,4): count += 1
+                if (s[0], s[1], s[2], agentAct, opponentAct) == (2, 1, False, 1, 4):
+                    count += 1
                 s_prime, reward, done = self.env.step(agentAct, opponentAct)
-                self.agent.learn(alpha, s[0], s[1], s[2], agentAct, opponentAct,
-                            s_prime[0], s_prime[1], s_prime[2], reward, -reward, done)
-                self.opponent.learn(alpha, s[0], s[1], s[2], opponentAct, agentAct,
-                            s_prime[0], s_prime[1], s_prime[2], -reward, reward, done)
+                self.agent.learn(
+                    alpha,
+                    s[0],
+                    s[1],
+                    s[2],
+                    agentAct,
+                    opponentAct,
+                    s_prime[0],
+                    s_prime[1],
+                    s_prime[2],
+                    reward,
+                    -reward,
+                    done,
+                )
+                self.opponent.learn(
+                    alpha,
+                    s[0],
+                    s[1],
+                    s[2],
+                    opponentAct,
+                    agentAct,
+                    s_prime[0],
+                    s_prime[1],
+                    s_prime[2],
+                    -reward,
+                    reward,
+                    done,
+                )
                 if done or step > self.maxStep:
-                    memory.append(reward==100)
+                    memory.append(reward == 100)
                     break
                 s = s_prime
                 step += 1
             if alpha > self.alpha_min:
                 alpha *= self.alpha_decay
             if epsilon > self.epsilon_min:
-                    epsilon *= self.epsilon_decay
+                epsilon *= self.epsilon_decay
             new_val = self.__sampleAgentQValue()
             error.append(abs(new_val - current_val))
             current_val = new_val
@@ -97,5 +139,5 @@ class SoccerGame:
     def evaluate(self, num=10000):
         rewards = []
         for i in range(num):
-            rewards.append(self.play(False)==100)
+            rewards.append(self.play(False) == 100)
         return np.average(rewards)

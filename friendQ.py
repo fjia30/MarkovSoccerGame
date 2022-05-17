@@ -12,21 +12,20 @@ class FriendQ(ISoccerGameAgent):
         dimOfQ = np.concatenate((stateSpace, [actSpace, actSpace]))
         self.Q = np.ones(dimOfQ)
 
-
     # create game matrix at state s
-        #               A
-        #     N   S   E   W   stay
-        #   N 
-        #   S     Q(s, A, B)
-        # B E
-        #   W 
-        #   stay
-        #
-        # the values at each position is Q(s, A, B)
-        # game matix is Q(s) transposed
+    #               A
+    #     N   S   E   W   stay
+    #   N
+    #   S     Q(s, A, B)
+    # B E
+    #   W
+    #   stay
+    #
+    # the values at each position is Q(s, A, B)
+    # game matix is Q(s) transposed
     def __constructGameMatrix(self, s0, s1, s2: int):
         return self.Q[s0, s1, s2].T
-    
+
     def act(self, s0, s1, s2):
         s2 = int(s2)
         # get game matrix at current state
@@ -37,9 +36,23 @@ class FriendQ(ISoccerGameAgent):
         # random tie-breaking is essensial because it is equal to dividing the probability among best options
         action = np.random.choice(np.flatnonzero(columns == columns.max()))
         return action
-    
+
     # see Greenwald, Hall, and Zinkevich 2005 table 2
-    def learn(self, alpha, s0, s1, s2, action, opponentAction, s_prime0, s_prime1, s_prime2, reward, opponent_reward,done):
+    def learn(
+        self,
+        alpha,
+        s0,
+        s1,
+        s2,
+        action,
+        opponentAction,
+        s_prime0,
+        s_prime1,
+        s_prime2,
+        reward,
+        opponent_reward,
+        done,
+    ):
         s2 = int(s2)
         s_prime2 = int(s_prime2)
         # step 4a. calculate V_prime which is max(B) max(A) in the game matrix littman FFQ paper equation 7
@@ -54,7 +67,7 @@ class FriendQ(ISoccerGameAgent):
         # step 4b. update Q, which is the same as in FoeQ
         # Q[s,a,o] = (1-alpha) * Q[s,a,o] + alpha * ((1-gamma)*rew + gamma * V[s’])
         # except that V_prime is already calcuated here
-        self.Q[s0, s1, s2, action, opponentAction] = \
-            (1 - alpha) * self.Q[s0, s1, s2, action, opponentAction] + \
-            alpha * ((1-self.gamma) * reward + self.gamma * V_prime)
+        self.Q[s0, s1, s2, action, opponentAction] = (1 - alpha) * self.Q[
+            s0, s1, s2, action, opponentAction
+        ] + alpha * ((1 - self.gamma) * reward + self.gamma * V_prime)
         pass

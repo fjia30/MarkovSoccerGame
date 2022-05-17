@@ -12,5 +12,19 @@ class ISoccerGameAgent(ABC):
         pass
 
     @abstractmethod
-    def learn(self, alpha, s0, s1, s2, action, opponentAction, s_prime0, s_prime1, s_prime2, reward, opponent_reward, done):
+    def learn(
+        self,
+        alpha,
+        s0,
+        s1,
+        s2,
+        action,
+        opponentAction,
+        s_prime0,
+        s_prime1,
+        s_prime2,
+        reward,
+        opponent_reward,
+        done,
+    ):
         pass
