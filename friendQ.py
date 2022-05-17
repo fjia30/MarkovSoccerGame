@@ -1,4 +1,5 @@
-from agents import *
+from agents import ISoccerGameAgent
+import numpy as np
 
 # based on littman FFQ paper
 # compared to FoeQ, we dont need to store pi and V because we can get both easily from the game matrix

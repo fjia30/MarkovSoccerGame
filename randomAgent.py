@@ -1,4 +1,5 @@
-from agents import *
+from agents import ISoccerGameAgent
+import numpy as np
 
 class randomPlayAgent(ISoccerGameAgent):
     def __init__(self, env, gamma):

@@ -1,4 +1,6 @@
-from agents import *
+import numpy as np
+from agents import ISoccerGameAgent
+from soccer import SoccerEnviroment
 
 class QLearning(ISoccerGameAgent):
     def __init__(self, env: SoccerEnviroment, gamma):

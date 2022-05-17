@@ -1,5 +1,4 @@
 from soccer import SoccerEnviroment
-from agents import *
 from randomAgent import randomPlayAgent
 from QlearningAgent import QLearning
 from foeQ import FoeQ

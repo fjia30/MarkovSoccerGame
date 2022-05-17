@@ -1,4 +1,7 @@
-from agents import *
+from agents import ISoccerGameAgent
+import numpy as np
+from cvxopt import solvers, matrix
+import copy
 
 # FoeQ / minimaxQ is implemented according to Littman 1994
 class FoeQ(ISoccerGameAgent):

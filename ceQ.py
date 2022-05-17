@@ -1,4 +1,6 @@
-from agents import *
+from agents import ISoccerGameAgent
+from cvxopt import solvers, matrix
+import numpy as np
 
 # CEQ see Greenwald, Hall, and Zinkevich 2005
 # this algorithm is similar to FoeQ but different in calculating pi
