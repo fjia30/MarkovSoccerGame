@@ -49,4 +49,3 @@ class QLearning(ISoccerGameAgent):
         self.Q[s0, s1, s2, action] = (1 - alpha) * self.Q[
             s0, s1, s2, action
         ] + alpha * ((1 - self.gamma) * reward + self.gamma * V_prime)
-        pass

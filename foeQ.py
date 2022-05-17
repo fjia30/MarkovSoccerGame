@@ -152,4 +152,3 @@ class FoeQ(ISoccerGameAgent):
             self.Q[s0, s1, s2, action, opponentAction] = (1 - alpha) * self.Q[
                 s0, s1, s2, action, opponentAction
             ] + alpha * (1 - self.gamma) * reward
-        pass

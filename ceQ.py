@@ -249,4 +249,3 @@ class CEQ(ISoccerGameAgent):
             ) * self.opponentQ[s0, s1, s2, action, opponentAction] + alpha * (
                 1 - self.gamma
             ) * opponent_reward
-        pass
