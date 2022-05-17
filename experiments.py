@@ -1,11 +1,11 @@
-from soccer import SoccerEnvironment
-from randomAgent import RandomAgent
-from QlearningAgent import QLearning
-from foeQ import FoeQ
-from friendQ import FriendQ
-from ceQ import CEQ
+from SoccerEnv import SoccerEnv
+from RandomAgent import RandomAgent
+from QLearningAgent import QLearning
+from FoeQ import FoeQ
+from FriendQ import FriendQ
+from CEQ import CEQ
 from matplotlib import pyplot as plt
-from game_interface import SoccerGame
+from SoccerGame import SoccerGame
 
 num_episode = 100000
 epsilon_start = 1
@@ -15,7 +15,7 @@ gamma = 0.99
 alpha_start = 1
 alpha_decay = 0.99993
 alpha_min = 0.001
-env = SoccerEnvironment()
+env = SoccerEnv()
 
 q_learning_agent = QLearning(env, gamma)
 q_learning_opponent = QLearning(env, gamma)

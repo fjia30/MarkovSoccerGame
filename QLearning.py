@@ -1,10 +1,10 @@
 import numpy as np
-from agents import SoccerGameAgent
-from soccer import SoccerEnvironment
+from SoccerGameAgent import SoccerGameAgent
+from SoccerEnv import SoccerEnv
 
 
 class QLearning(SoccerGameAgent):
-    def __init__(self, env: SoccerEnvironment, gamma):
+    def __init__(self, env: SoccerEnv, gamma):
         # TODO: call to super missing
         self.env = env
         self.gamma = gamma

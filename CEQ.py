@@ -1,4 +1,4 @@
-from agents import SoccerGameAgent
+from SoccerGameAgent import SoccerGameAgent
 from cvxopt import solvers, matrix
 import numpy as np
 

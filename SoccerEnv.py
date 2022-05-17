@@ -3,7 +3,7 @@ import numpy as np
 GOAL_REWARD = 100
 
 
-class SoccerEnvironment:
+class SoccerEnv:
     """This represents the soccer environment.
 
     It is designed to be similar to OpenAI's gym environments.
