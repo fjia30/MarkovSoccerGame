@@ -1,22 +1,34 @@
-# Soccer class resembles an enviroment in OpenAI Gym
-# Use reset() to initiate an episode
-# Use step(actionA, actionB) to simulate an action which returns next stata, reward and isFinished
-# Use render() to draw the current state
-# self.action_space: num of actions
-# self.state_space: <num of variabel1, num of variable2, num of variable3>
-
-# the fild is a 2x4 grid
-# number the grid as
-# 0, 1, 2, 3
-# 4, 5, 6, 7
-# states are position of A, position of B and whether A or B has the ball
-# actions for both A and B are (N,S,E,W,stick) which is represented as 0~4
 import numpy as np
 
 GOAL_REWARD = 100
 
 
 class SoccerEnviroment:
+    """This represents the soccer environment.
+
+    It is designed to be similar to OpenAI's gym environments.
+
+    Use reset() to initiate an episode.
+
+    Use step(actionA, actionB) to simulate an action which returns next a
+    state, reward and isFinished.
+
+    Use render() to draw the current state.
+
+    self.action_space: num of actions
+    self.state_space: <num of variabel1, num of variable2, num of variable3>
+
+    The field is a 2x4 grid.
+
+    Number the grid as
+
+    0, 1, 2, 3
+    4, 5, 6, 7
+
+    States are the position of A, position of B and whether A or B has the ball
+    actions for both A and B are (N, S, E, W, stick), which is represented as
+    0~4."""
+
     def __init__(self):
         self.actions = [-4, 4, 1, -1, 0]
         self.action_space = len(self.actions)
@@ -25,8 +37,13 @@ class SoccerEnviroment:
     def __showCurrentState(self):
         return (self.posOfA, self.posOfB, self.AHasBall)
 
-    # returns the reward for A, the reward for B is the negative by definition of zero sum game
     def __calculateReward(self):
+        """Calculates the reward for A.
+
+        The reward for B is the negative of the reward for A, by definition of
+        a zero-sum game.
+
+        :return: the reward for A."""
         if self.AHasBall:
             if self.posOfA == 0 or self.posOfA == 4:
                 return GOAL_REWARD
@@ -39,9 +56,15 @@ class SoccerEnviroment:
                 return -GOAL_REWARD
         return 0
 
-    # calculate the postion of a player after a move
-    # player sticks if moving towards a wall
     def __movePlayer(self, postion, action):
+        """Calculate the position of a player after a move.
+
+        Player sticks if moving towards a wall.
+
+        :param postion:
+        :param action:
+        :return:
+        """
         newPostion = postion + self.actions[action]
         if newPostion < 0 or newPostion > 7:
             return postion
@@ -52,33 +75,42 @@ class SoccerEnviroment:
         newPosOfA = self.__movePlayer(self.posOfA, actionOfA)
         if newPosOfA != self.posOfB:
             self.posOfA = newPosOfA
-        # if A run into B with a ball, give the ball to B
         elif self.AHasBall:
+            # If A run into B with a ball, give the ball to B.
             self.AHasBall = False
 
     def __moveB(self, actionOfB):
         newPosOfB = self.__movePlayer(self.posOfB, actionOfB)
         if newPosOfB != self.posOfA:
             self.posOfB = newPosOfB
-        # if B run into A with a ball, give the ball to A
         elif not self.AHasBall:
+            # If B run into A with a ball, give the ball to A.
             self.AHasBall = True
 
-    # initilized game with random ball poccession
     def reset(self):
-        self.posOfA, self.posOfB = np.random.choice([1, 2, 5, 6], size=2, replace=False)
+        """Initialize the environment by giving random positions to A, B and
+        the ball.
+
+        :return: the current state."""
+        self.posOfA, self.posOfB = np.random.choice(
+            [1, 2, 5, 6], size=2, replace=False
+        )
         self.AHasBall = np.random.choice([True, False])
         return self.__showCurrentState()
 
-    # take a step in the game given actions of A and B
-    # return next state, reward and whether the game is dones
     def step(self, actionOfA, actionOfB):
+        """Take a step in the game, given actions of A and B.
+
+        :param actionOfA: action of A
+        :param actionOfB: action of B
+        :return: return the next state, reward and whether the game is done.
+        """
         if np.random.random() > 0.5:
-            # A moves first
+            # A moves first.
             self.__moveA(actionOfA)
             self.__moveB(actionOfB)
         else:
-            # B moves first
+            # B moves first.
             self.__moveB(actionOfB)
             self.__moveA(actionOfA)
 

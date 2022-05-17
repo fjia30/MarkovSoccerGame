@@ -2,13 +2,15 @@ from collections import deque
 import numpy as np
 
 
-# this class is where the game is actually played
-# it takes the soccer enviroment, the agent and the opponent as parameters
-# and simulate a soccer game where the agent and the opponent play against each other
-# the agent and opponent can use any of the alogorithms implemented here
-# and they learn and behave independent of each other
-# the learning parameters are provided and are the same for both players
 class SoccerGame:
+    """This is where the game is actually played.
+
+    It takes the soccer environment, the agent and the opponent as parameters,
+    and simulate a soccer game, where the agent and the opponent play against
+    each other. The agent and opponent can use any of the algorithms
+    implemented here, and they learn and behave independent of each other.
+    The learning parameters are provided and are the same for both players."""
+
     def __init__(
         self,
         numEpisode,
@@ -37,28 +39,39 @@ class SoccerGame:
         self.opponent = opponent
         self.maxStep = maxStep
 
-    # sample a fixed point in agent's Q function space
-    # by default the start position
+    # Sample a fixed point in agent's Q function space
+    # By default, the start position.
     def __sampleAgentQValue(self, s0=2, s1=1, s2=0, a=1, o=4):
-        # special case for Q learning
+        # Special case for Q-learning
         if len(self.agent.Q.shape) < 5:
             return self.agent.Q[s0, s1, s2, a]
         return self.agent.Q[s0, s1, s2, a, o]
 
-    # epsilon defines a unified exploration rate during training for both players
     def train(self):
         count = 0
         error = []
         current_val = self.__sampleAgentQValue()
         alpha = self.alpha_start
+
+        # epsilon defines a unified exploration rate during training for both
+        # players
         epsilon = self.epsilon_start
+
         memory = deque(maxlen=100)
+
         for episode in range(self.numEpisode):
             n = 1000
             if episode % n == n - 1:
                 print(
-                    "episode: {} / {}, win rate={:.2f}, alpha={:.4f}, epsilon={:4f}".format(
-                        episode, self.numEpisode, np.average(memory), alpha, epsilon
+                    "episode: {} / {}, "
+                    "win rate={:.2f}, "
+                    "alpha={:.4f}, "
+                    "epsilon={:4f}".format(
+                        episode,
+                        self.numEpisode,
+                        np.average(memory),
+                        alpha,
+                        epsilon,
                     )
                 )
             s = self.env.reset()
@@ -72,7 +85,13 @@ class SoccerGame:
                     opponentAct = np.random.randint(self.env.action_space)
                 else:
                     opponentAct = self.opponent.act(s[0], s[1], s[2])
-                if (s[0], s[1], s[2], agentAct, opponentAct) == (2, 1, False, 1, 4):
+                if (s[0], s[1], s[2], agentAct, opponentAct) == (
+                    2,
+                    1,
+                    False,
+                    1,
+                    4,
+                ):
                     count += 1
                 s_prime, reward, done = self.env.step(agentAct, opponentAct)
                 self.agent.learn(
