@@ -1,9 +1,10 @@
+from soccer_learning.environments import Env
 import numpy as np
 
 GOAL_REWARD = 100
 
 
-class SoccerEnv:
+class SoccerEnv(Env):
     """This represents the soccer environment.
 
     It is designed to be similar to OpenAI's gym environments.
@@ -30,6 +31,7 @@ class SoccerEnv:
     0~4."""
 
     def __init__(self):
+        super().__init__()
         self.actions = [-4, 4, 1, -1, 0]
         self.action_space = len(self.actions)
         self.state_space = (8, 8, 2)

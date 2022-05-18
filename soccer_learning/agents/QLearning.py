@@ -1,13 +1,10 @@
 import numpy as np
 from soccer_learning.agents import SoccerGameAgent
-from soccer_learning.environments import SoccerEnv
 
 
 class QLearning(SoccerGameAgent):
-    def __init__(self, env: SoccerEnv, gamma):
-        # TODO: call to super missing
-        self.env = env
-        self.gamma = gamma
+    def __init__(self, env, gamma):
+        super().__init__(env, gamma)
 
         state_space = env.state_space
         action_space = env.action_space
