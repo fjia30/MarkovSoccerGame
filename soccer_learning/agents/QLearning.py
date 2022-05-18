@@ -1,6 +1,6 @@
 import numpy as np
-from SoccerGameAgent import SoccerGameAgent
-from SoccerEnv import SoccerEnv
+from soccer_learning.agents import SoccerGameAgent
+from soccer_learning.environments import SoccerEnv
 
 
 class QLearning(SoccerGameAgent):

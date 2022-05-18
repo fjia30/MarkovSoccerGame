@@ -1,4 +1,4 @@
-from SoccerGameAgent import SoccerGameAgent
+from soccer_learning.agents import SoccerGameAgent
 import numpy as np
 
 

@@ -1,13 +1,13 @@
-from SoccerEnv import SoccerEnv
-from RandomAgent import RandomAgent
-from QLearningAgent import QLearning
-from FoeQ import FoeQ
-from FriendQ import FriendQ
-from CEQ import CEQ
+from soccer_learning.environments import SoccerEnv
+from soccer_learning.agents import RandomAgent
+from soccer_learning.agents import QLearning
+from soccer_learning.agents import FoeQ
+from soccer_learning.agents import FriendQ
+from soccer_learning.agents import CEQ
 from matplotlib import pyplot as plt
-from SoccerGame import SoccerGame
+from soccer_learning.games import SoccerGame
 
-num_episode = 100000
+num_episode = 100  # 000
 epsilon_start = 1
 epsilon_decay = 0.99993
 epsilon_min = 0.01

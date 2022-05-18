@@ -1,4 +1,4 @@
-from SoccerEnv import SoccerEnv
+from soccer_learning.environments import SoccerEnv
 from abc import ABC, abstractmethod
 
 
