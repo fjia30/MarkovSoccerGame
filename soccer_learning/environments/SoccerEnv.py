@@ -1,8 +1,6 @@
 from soccer_learning.environments import Env
 import numpy as np
 
-GOAL_REWARD = 100
-
 
 class SoccerEnv(Env):
     """This represents the soccer environment.
@@ -30,6 +28,8 @@ class SoccerEnv(Env):
     actions for both A and B are (N, S, E, W, stick), which is represented as
     0~4."""
 
+    GOAL_REWARD = 100
+
     def __init__(self):
         super().__init__()
         self.actions = [-4, 4, 1, -1, 0]
@@ -48,14 +48,14 @@ class SoccerEnv(Env):
         :return: the reward for A."""
         if self.a_has_ball:
             if self.a_pos == 0 or self.a_pos == 4:
-                return GOAL_REWARD
+                return SoccerEnv.GOAL_REWARD
             if self.a_pos == 3 or self.a_pos == 7:
-                return -GOAL_REWARD
+                return -SoccerEnv.GOAL_REWARD
         else:
             if self.b_pos == 0 or self.b_pos == 4:
-                return GOAL_REWARD
+                return SoccerEnv.GOAL_REWARD
             if self.b_pos == 3 or self.b_pos == 7:
-                return -GOAL_REWARD
+                return -SoccerEnv.GOAL_REWARD
         return 0
 
     def _move_player(self, position, action):
