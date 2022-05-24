@@ -10,7 +10,7 @@ import itertools
 
 
 def main():
-    num_episode = 10  # 0000
+    num_episode = 100000
     alpha_start = 1
     alpha_decay = 0.99993
     alpha_min = 0.001
