@@ -20,7 +20,7 @@ class FriendQ(SoccerGameAgent):
         super().__init__(env, gamma)
 
         state_space = env.state_space
-        action_space = env.action_space
+        action_space = env.num_actions
 
         q_dim = np.concatenate((state_space, [action_space, action_space]))
 

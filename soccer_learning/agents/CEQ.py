@@ -17,7 +17,7 @@ class CEQ(SoccerGameAgent):
         super().__init__(env, gamma)
 
         state_space = env.state_space
-        action_space = env.action_space
+        action_space = env.num_actions
 
         # TODO: this seems to create a useless array.
         q_dim = np.concatenate((state_space, [action_space, action_space]))
@@ -151,7 +151,7 @@ class CEQ(SoccerGameAgent):
         # Construct linear functions
         #
         # Set 1
-        num_actions = self.env.action_space
+        num_actions = self.env.num_actions
         num_combined_actions = num_actions**2  # Number of combined actions.
         A = []
         b = []

@@ -78,11 +78,11 @@ class SoccerGame:
             step = 0
             while True:
                 if np.random.random() < epsilon:
-                    agent_action = np.random.randint(self.env.action_space)
+                    agent_action = np.random.randint(self.env.num_actions)
                 else:
                     agent_action = self.agent.act(s[0], s[1], s[2])
                 if np.random.random() < epsilon:
-                    opponent_action = np.random.randint(self.env.action_space)
+                    opponent_action = np.random.randint(self.env.num_actions)
                 else:
                     opponent_action = self.opponent.act(s[0], s[1], s[2])
                 if (s[0], s[1], s[2], agent_action, opponent_action) == (

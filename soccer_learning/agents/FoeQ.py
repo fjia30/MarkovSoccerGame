@@ -18,7 +18,7 @@ class FoeQ(SoccerGameAgent):
         super().__init__(env, gamma)
 
         state_space = env.state_space
-        action_space = env.action_space
+        action_space = env.num_actions
 
         q_dim = np.concatenate((state_space, [action_space, action_space]))
         pi_dim = np.concatenate((state_space, [action_space]))
@@ -102,7 +102,7 @@ class FoeQ(SoccerGameAgent):
         # Add constrains.
         #
         # All probabilities >= 0.
-        num_actions = self.env.action_space
+        num_actions = self.env.num_actions
         I = np.zeros((num_actions, num_actions))
         for i in range(num_actions):
             I[i, i] = 1
