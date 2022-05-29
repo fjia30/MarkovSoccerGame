@@ -32,12 +32,12 @@ class SoccerGame:
         self.epsilon_start = epsilon_start
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
-        self.numEpisode = num_episode
+        self.num_episode = num_episode
         self.gamma = gamma
         self.env = env
         self.agent = agent
         self.opponent = opponent
-        self.maxStep = max_step
+        self.max_step = max_step
 
     # Sample a fixed point in agent's Q function space
     # By default, the start position.
@@ -59,7 +59,7 @@ class SoccerGame:
 
         memory = deque(maxlen=100)
 
-        for episode in range(self.numEpisode):
+        for episode in range(self.num_episode):
             n = 1000
             if episode % n == n - 1:
                 print(
@@ -68,7 +68,7 @@ class SoccerGame:
                     "alpha={:.4f}, "
                     "epsilon={:4f}".format(
                         episode,
-                        self.numEpisode,
+                        self.num_episode,
                         np.average(memory),
                         alpha,
                         epsilon,
@@ -124,7 +124,7 @@ class SoccerGame:
                     reward,
                     done,
                 )
-                if done or step > self.maxStep:
+                if done or step > self.max_step:
                     memory.append(reward == 100)
                     break
                 s = s_prime
@@ -153,7 +153,7 @@ class SoccerGame:
             if render:
                 print("\n", agent_action, opponent_action)
                 self.env.render()
-            if done or step > self.maxStep:
+            if done or step > self.max_step:
                 break
             s = s_prime
             step += 1
